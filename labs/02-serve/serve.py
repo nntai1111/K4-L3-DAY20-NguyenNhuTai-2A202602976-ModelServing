@@ -66,6 +66,13 @@ def main() -> int:
         print(f"  endpoints: http://localhost:{port}/v1/embeddings")
     print(f"\n  {' '.join(cmd)}\n")
 
+    # os.execv on Windows does not quote argv, so a repo path with a space
+    # ("D:\vinuni AI\...") is split into two arguments. subprocess quotes correctly.
+    if sys.platform == "win32":
+        try:
+            return subprocess.run(cmd, check=False).returncode
+        except KeyboardInterrupt:
+            return 0
     try:
         os.execv(cmd[0], cmd)          # hand the terminal over; Ctrl-C stops the server
     except OSError:
